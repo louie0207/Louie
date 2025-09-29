@@ -1,12 +1,9 @@
-# app/main.py
 from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-# --- Module 3 bigram model import ---
 from app.bigram_model import BigramModel
 
-# --- Optional: spaCy for embeddings ---
 import spacy
 import numpy as np
 
@@ -16,9 +13,6 @@ app = FastAPI(
     description="Simple text generation (bigram) and word embeddings API."
 )
 
-# ----------------------------
-# Bigram model setup (Module 3)
-# ----------------------------
 corpus = [
     "The Count of Monte Cristo is a novel written by Alexandre Dumas. "
     "It tells the story of Edmond Dantès, who is falsely imprisoned and later seeks revenge.",
@@ -32,10 +26,6 @@ class TextGenerationRequest(BaseModel):
     start_word: str
     length: int
 
-# ----------------------------
-# Embeddings setup (Module 2)
-# ----------------------------
-# Load once at startup; give a helpful message if the model isn't present.
 try:
     nlp = spacy.load("en_core_web_lg")
 except OSError as e:
@@ -48,9 +38,6 @@ class EmbedRequest(BaseModel):
     word: str
     normalize: Optional[bool] = False  # Return a unit vector if True
 
-# ---------------
-# API Endpoints
-# ---------------
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
@@ -73,7 +60,7 @@ def embed_word(req: EmbedRequest):
         raise HTTPException(status_code=400, detail="word must be non-empty")
 
     doc = nlp(w)
-    # For a single token, use token.vector; for multi-word phrases, use doc.vector
+    
     vec = doc[0].vector if len(doc) == 1 else doc.vector
 
     if req.normalize:
